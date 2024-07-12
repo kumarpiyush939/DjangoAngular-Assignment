@@ -15,15 +15,19 @@ from .serializers import (
 from rest_framework import generics
 from rest_framework.permissions import IsAuthenticated
 from .models import Interest
+import logging
+from django.shortcuts import get_object_or_404
 
 
 class RegisterView(generics.CreateAPIView):
+    logging.info("register----------------------------------------------------")
     queryset = User.objects.all()
     serializer_class = UserSerializer
 
 
 class LoginView(APIView):
     def post(self, request):
+        print(request.data)
         serializer = LoginSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         user = authenticate(
@@ -31,17 +35,46 @@ class LoginView(APIView):
             password=serializer.validated_data["password"],
         )
         if user:
-            return Response({"message": "Login successful"}, status=status.HTTP_200_OK)
+            # Set cookie with username and token
+            response = Response(
+                {
+                    "message": "Login successful",
+                    "username": request.data.get("username"),
+                },
+                status=status.HTTP_200_OK,
+            )
+            response.set_cookie("username", user.username)
+            response.set_cookie("token", "YOUR_TOKEN_VALUE")
+            return response
         return Response(
             {"error": "Invalid credentials"}, status=status.HTTP_401_UNAUTHORIZED
         )
 
 
+# class UserListView(generics.ListAPIView):
+#     queryset = User.objects.all()
+#     print(queryset)
+#     serializer_class = UserListSerializer
+
+
+class UserDetailView(generics.RetrieveAPIView):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+    lookup_field = "username"
+
+    def get_object(self):
+        username = self.kwargs["username"]
+        print(username)
+        user = get_object_or_404(User, username=username)
+        return user
+
+
 class InterestListCreateView(generics.ListCreateAPIView):
     queryset = Interest.objects.all()
     serializer_class = InterestSerializer
-    # permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated]
     print("InterestListCreateVieweeeeeee")
+
     def perform_create(self, serializer):
         serializer.save(sender=self.request.user)
         return Response({"message": "Interest sent"}, status=status.HTTP_201_CREATED)

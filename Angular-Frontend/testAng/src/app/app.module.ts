@@ -9,6 +9,9 @@ import { HomeComponent } from './home/home.component';
 import { NavComponent } from './nav/nav.component';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {HttpClientModule} from '@angular/common/http';
+import { HTTP_INTERCEPTORS } from '@angular/common/http';
+import { CustomHttpInterceptor } from './custom-http-interceptor.service';
+
 
 @NgModule({
   declarations: [
@@ -25,7 +28,9 @@ import {HttpClientModule} from '@angular/common/http';
     ReactiveFormsModule,
     HttpClientModule
   ],
-  providers: [],
+  providers: [
+    {provide: HTTP_INTERCEPTORS, useClass: CustomHttpInterceptor, multi: true}
+  ],
   bootstrap: [AppComponent]
 })
 export class AppModule {

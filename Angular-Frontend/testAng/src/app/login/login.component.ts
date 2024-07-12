@@ -17,7 +17,7 @@ export class LoginComponent implements OnInit {
     private router: Router
   ) {
     this.form = this.formBuilder.group({
-      email: '',
+      username: '',
       password: ''
     });
 
@@ -27,8 +27,13 @@ export class LoginComponent implements OnInit {
   }
 
   submit(): void {
-    this.http.post('http://localhost:8000/api/login', this.form.getRawValue(), {
+    this.http.post('http://localhost:8000/users/login/', this.form.getRawValue(), {
       withCredentials: true
-    }).subscribe(() => this.router.navigate(['/']));
+    }).subscribe((response) => {
+      console.log('Response from API:', response);
+      console.log('Login successful!');
+      const username = this.form.get('username')?.value;
+      this.router.navigate(['/', username]);
+    });
   }
 }

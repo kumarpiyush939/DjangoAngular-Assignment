@@ -17,7 +17,7 @@ export class RegisterComponent implements OnInit {
     
   ) {
     this.form = this.formBuilder.group({
-        name: '',
+        username: '',
         email: '',
         password: ''
       })
@@ -30,7 +30,10 @@ export class RegisterComponent implements OnInit {
   }
 
   submit(): void {
-    this.http.post('http://localhost:8000/api/register', !!this.form && this.form.getRawValue())
+    const body = !!this.form && this.form.getRawValue();
+    console.log("#############################");
+    console.log(body);
+    this.http.post('http://localhost:8000/users/register/', body)
       .subscribe(() => this.router.navigate(['/login']));
   }
 }
